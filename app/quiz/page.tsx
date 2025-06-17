@@ -30,46 +30,44 @@ export default function QuizPage() {
   const mode = searchParams.get("mode") || "normal"
   const limit = Number.parseInt(searchParams.get("limit") || "0")
 
-  const shuffleArray = <T,>(array: T[]): T[] => {
-    const shuffled = [...array]
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-    }
-    return shuffled
-  }
-
   const loadQuestions = useCallback(async () => {
+    const shuffleArray = <T,>(array: T[]): T[] => {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    };
+
     try {
-      const response = await fetch("/api/questions")
-      const data = await response.json()
+      const response = await fetch("/api/questions");
+      const data = await response.json();
 
-      let processedQuestions = data.questions
+      let processedQuestions = data.questions;
 
-      // Mezclar preguntas si es modo aleatorio o super aleatorio
       if (mode === "random" || mode === "super-random") {
-        processedQuestions = shuffleArray(processedQuestions)
+        processedQuestions = shuffleArray(processedQuestions);
       }
 
-      // Si es modo super aleatorio, también mezclar las opciones de cada pregunta
       if (mode === "super-random") {
         processedQuestions = processedQuestions.map((question: Question) => ({
           ...question,
           opciones: shuffleArray(question.opciones),
-        }))
+        }));
       }
 
       if (limit > 0) {
-        processedQuestions = processedQuestions.slice(0, limit)
+        processedQuestions = processedQuestions.slice(0, limit);
       }
 
-      setQuestions(processedQuestions)
-      setLoading(false)
+      setQuestions(processedQuestions);
+      setLoading(false);
     } catch (error) {
-      console.error("Error loading questions:", error)
-      setLoading(false)
+      console.error("Error loading questions:", error);
+      setLoading(false);
     }
-  }, [mode, limit, shuffleArray])
+  }, [mode, limit]);
 
   useEffect(() => {
     loadQuestions()
