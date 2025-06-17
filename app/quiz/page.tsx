@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -30,10 +30,6 @@ export default function QuizPage() {
   const mode = searchParams.get("mode") || "normal"
   const limit = Number.parseInt(searchParams.get("limit") || "0")
 
-  useEffect(() => {
-    loadQuestions()
-  }, [mode, limit])
-
   const shuffleArray = <T,>(array: T[]): T[] => {
     const shuffled = [...array]
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -43,7 +39,7 @@ export default function QuizPage() {
     return shuffled
   }
 
-  const loadQuestions = async () => {
+  const loadQuestions = useCallback(async () => {
     try {
       const response = await fetch("/api/questions")
       const data = await response.json()
@@ -73,7 +69,11 @@ export default function QuizPage() {
       console.error("Error loading questions:", error)
       setLoading(false)
     }
-  }
+  }, [mode, limit, shuffleArray])
+
+  useEffect(() => {
+    loadQuestions()
+  }, [loadQuestions])
 
   const handleAnswerSelect = (answer: string) => {
     setSelectedAnswer(answer)
