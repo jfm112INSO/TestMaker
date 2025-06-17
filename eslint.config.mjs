@@ -10,10 +10,19 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
-    ignores: ["**/*"],
-    rules: {},
+    files: ["**/*.ts", "**/*.tsx"], // analiza ts y tsx
+    rules: {
+      "@typescript-eslint/no-empty-object-type": "off",
+    },
   },
 ];
 
 export default eslintConfig;
+export const config = {
+  root: true,
+  reportUnusedDisableDirectives: true,
+  ignorePatterns: ["**/dist", "**/node_modules"],
+  overrides: eslintConfig,
+};
